@@ -21,6 +21,7 @@
 
 // Qt includes
 #include <QDesktopWidget>
+#include <QHBoxLayout>
 #include <QLabel>
 
 // Slicer includes
@@ -81,7 +82,23 @@ void qnykAorticAppMainWindowPrivate::setupUi(QMainWindow * mainWindow)
   QLabel* logoLabel = new QLabel();
   logoLabel->setObjectName("LogoLabel");
   logoLabel->setPixmap(qMRMLWidget::pixmapFromIcon(QIcon(":/LogoFull.png")));
-  this->PanelDockWidget->setTitleBarWidget(logoLabel);
+  logoLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+  logoLabel->setContentsMargins(5, 0, 0, 0);
+  logoLabel->setStyleSheet("QLabel#LogoLabel { background-color: transparent; padding: 2px; margin-right: 10px; }");
+  
+  // Create a custom title bar widget that separates the logo from other content
+  QWidget* customTitleBar = new QWidget();
+  QHBoxLayout* titleLayout = new QHBoxLayout(customTitleBar);
+  titleLayout->setContentsMargins(0, 0, 0, 0);
+  titleLayout->setSpacing(10);
+  
+  // Add the logo to the left side of the title bar
+  titleLayout->addWidget(logoLabel);
+  
+  // Add spacer to push other content to the right
+  titleLayout->addStretch(1);
+  
+  this->PanelDockWidget->setTitleBarWidget(customTitleBar);
 
   // Hide the menus
   //this->menubar->setVisible(false);
