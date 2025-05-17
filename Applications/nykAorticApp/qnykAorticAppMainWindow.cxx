@@ -20,6 +20,7 @@
 #include "qnykAorticAppMainWindow_p.h"
 
 // Qt includes
+#include <QDebug>
 #include <QDesktopWidget>
 #include <QHBoxLayout>
 #include <QLabel>
