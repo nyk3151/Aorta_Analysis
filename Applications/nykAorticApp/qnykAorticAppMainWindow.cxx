@@ -81,13 +81,17 @@ void qnykAorticAppMainWindowPrivate::setupUi(QMainWindow * mainWindow)
 
   QLabel* logoLabel = new QLabel();
   logoLabel->setObjectName("LogoLabel");
-  logoLabel->setPixmap(qMRMLWidget::pixmapFromIcon(QIcon(":/LogoFull.png")));
+  QPixmap logoPixmap(":/LogoFull.png");
+  qDebug() << "Logo pixmap is" << (logoPixmap.isNull() ? "NULL" : "valid") << "with size" << logoPixmap.size();
+  logoLabel->setPixmap(logoPixmap);
   logoLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
   logoLabel->setContentsMargins(5, 0, 0, 0);
   logoLabel->setStyleSheet("QLabel#LogoLabel { background-color: transparent; padding: 2px; margin-right: 10px; }");
+  logoLabel->setVisible(true);
 
   // Create a custom title bar widget that separates the logo from other content
   QWidget* customTitleBar = new QWidget();
+  customTitleBar->setMinimumHeight(25); // Ensure title bar has minimum height
   QHBoxLayout* titleLayout = new QHBoxLayout(customTitleBar);
   titleLayout->setContentsMargins(0, 0, 0, 0);
   titleLayout->setSpacing(10);
