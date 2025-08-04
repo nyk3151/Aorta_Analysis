@@ -1,0 +1,8 @@
+# This is a placeholder file for the trained model weights
+# The actual model weights (best_metric_model.pth) should be placed in this directory
+# Model specifications:
+# - 3D UNet with 1 input channel, 24 output classes
+# - channels=(16, 32, 64, 128, 256), strides=(2, 2, 2, 2), num_res_units=2
+# - Trained with DiceCELoss, Adam optimizer (lr=1e-4)
+# - Input: CT scans with intensity range [-175, 250] HU
+# - Output: 24-class segmentation (background + 23 anatomical regions)
