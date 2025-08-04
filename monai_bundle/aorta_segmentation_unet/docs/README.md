@@ -37,11 +37,7 @@ This MONAI bundle provides a 3D UNet model for 24-class aortic segmentation from
 from monai.bundle import run
 
 # Run inference
-run(
-    run_id="inference",
-    config_file="configs/inference.json",
-    bundle_root="."
-)
+run(run_id="inference", config_file="configs/inference.json", bundle_root=".")
 ```
 
 ### With MONAI Label

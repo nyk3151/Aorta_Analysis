@@ -1,6 +1,3 @@
-import os
-
-
 PRETRAINED_PATH = {
     "aorta_segmentation_unet": "https://github.com/Project-MONAI/model-zoo/releases/download/hosting_storage_v1/aorta_segmentation_unet_v1.0.0.zip"
 }
@@ -9,9 +6,9 @@ SPATIAL_SIZE = [96, 96, 96]
 
 INTENSITY_RANGE = {
     "a_min": -175,  # Minimum HU value
-    "a_max": 250,   # Maximum HU value
-    "b_min": 0.0,   # Scaled minimum
-    "b_max": 1.0    # Scaled maximum
+    "a_max": 250,  # Maximum HU value
+    "b_min": 0.0,  # Scaled minimum
+    "b_max": 1.0,  # Scaled maximum
 }
 
 TARGET_SPACING = [1.5, 1.5, 2.0]  # mm
@@ -22,14 +19,10 @@ NETWORK_CONFIG = {
     "out_channels": 24,  # Background + 23 anatomical regions
     "channels": [16, 32, 64, 128, 256],
     "strides": [2, 2, 2, 2],
-    "num_res_units": 2
+    "num_res_units": 2,
 }
 
-INFERENCE_CONFIG = {
-    "roi_size": SPATIAL_SIZE,
-    "sw_batch_size": 4,
-    "overlap": 0.5
-}
+INFERENCE_CONFIG = {"roi_size": SPATIAL_SIZE, "sw_batch_size": 4, "overlap": 0.5}
 
 LABEL_NAMES = {
     0: "background",
@@ -55,5 +48,5 @@ LABEL_NAMES = {
     20: "left_external_iliac",
     21: "right_external_iliac",
     22: "region_22",
-    23: "region_23"
+    23: "region_23",
 }

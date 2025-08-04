@@ -23,11 +23,13 @@ This MONAI Label application provides interactive segmentation capabilities for 
 ## Installation
 
 1. Install MONAI Label:
+
 ```bash
 pip install monailabel
 ```
 
 2. Install additional requirements:
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -101,6 +103,7 @@ Update the `pre_transforms()` method in `lib/infers.py` to modify the preprocess
 ### Logging
 
 Enable debug logging for detailed information:
+
 ```bash
 monailabel start_server --app aorta_app --studies /path/to/studies --conf models aorta_segmentation --log DEBUG
 ```

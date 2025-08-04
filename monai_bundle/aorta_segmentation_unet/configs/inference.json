@@ -1,8 +1,5 @@
 {
-  "imports": [
-    "$import glob",
-    "$import os"
-  ],
+  "imports": ["$import glob", "$import os"],
   "bundle_root": ".",
   "ckpt_dir": "$@bundle_root + '/models'",
   "output_dir": "$@bundle_root + '/eval'",
@@ -98,7 +95,7 @@
     {
       "_target_": "CheckpointLoader",
       "load_path": "$@ckpt_dir + '/best_metric_model.pth'",
-      "load_dict": {"model": "@network"}
+      "load_dict": { "model": "@network" }
     },
     {
       "_target_": "StatsHandler",
@@ -115,10 +112,6 @@
     "val_handlers": "@handlers",
     "amp": true
   },
-  "initialize": [
-    "$setattr(torch.backends.cudnn, 'benchmark', True)"
-  ],
-  "run": [
-    "$@evaluator.run()"
-  ]
+  "initialize": ["$setattr(torch.backends.cudnn, 'benchmark', True)"],
+  "run": ["$@evaluator.run()"]
 }
