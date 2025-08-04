@@ -1,6 +1,7 @@
 import logging
 import os
-from typing import Callable, Sequence
+from collections.abc import Sequence
+from typing import Callable, Optional
 
 import torch
 from monai.inferers import SlidingWindowInferer
@@ -17,12 +18,10 @@ from monai.transforms import (
     ScaleIntensityRanged,
     Spacingd,
 )
-
 from monailabel.interfaces.tasks.infer import InferTask
-from monailabel.interfaces.utils.transform import run_transforms
-from monailabel.utils.others.generic import device_list, gpu_memory_map
+from monailabel.utils.others.generic import gpu_memory_map
 
-from .configs import INTENSITY_RANGE, TARGET_SPACING, NETWORK_CONFIG, INFERENCE_CONFIG
+from .configs import INFERENCE_CONFIG, INTENSITY_RANGE, NETWORK_CONFIG, TARGET_SPACING
 
 logger = logging.getLogger(__name__)
 
@@ -35,10 +34,10 @@ class AortaSegmentation(InferTask):
     def __init__(
         self,
         path: str,
-        network: torch.nn.Module = None,
+        network: Optional[torch.nn.Module] = None,
         roi_size: Sequence[int] = (96, 96, 96),
         preload: bool = False,
-        config: dict = None,
+        config: Optional[dict] = None,
     ):
         super().__init__(
             path=path,
@@ -47,40 +46,42 @@ class AortaSegmentation(InferTask):
             preload=preload,
             config=config,
         )
-        
+
         self.roi_size = roi_size
-        
+
         if network is None:
             self.network = UNet(**NETWORK_CONFIG)
         else:
             self.network = network
 
-    def pre_transforms(self, data=None) -> Compose:
+    def pre_transforms(self, data: Optional[dict] = None) -> Compose:  # noqa: ARG002
         """
         Pre-processing transforms matching the training pipeline
         """
-        return Compose([
-            LoadImaged(keys="image"),
-            EnsureChannelFirstd(keys="image"),
-            ScaleIntensityRanged(
-                keys="image",
-                a_min=INTENSITY_RANGE["a_min"],
-                a_max=INTENSITY_RANGE["a_max"],
-                b_min=INTENSITY_RANGE["b_min"],
-                b_max=INTENSITY_RANGE["b_max"],
-                clip=True,
-            ),
-            CropForegroundd(keys="image", source_key="image"),
-            Orientationd(keys="image", axcodes="RAS"),
-            Spacingd(
-                keys="image",
-                pixdim=TARGET_SPACING,
-                mode="bilinear",
-            ),
-            EnsureTyped(keys="image"),
-        ])
+        return Compose(
+            [
+                LoadImaged(keys="image"),
+                EnsureChannelFirstd(keys="image"),
+                ScaleIntensityRanged(
+                    keys="image",
+                    a_min=INTENSITY_RANGE["a_min"],
+                    a_max=INTENSITY_RANGE["a_max"],
+                    b_min=INTENSITY_RANGE["b_min"],
+                    b_max=INTENSITY_RANGE["b_max"],
+                    clip=True,
+                ),
+                CropForegroundd(keys="image", source_key="image"),
+                Orientationd(keys="image", axcodes="RAS"),
+                Spacingd(
+                    keys="image",
+                    pixdim=TARGET_SPACING,
+                    mode="bilinear",
+                ),
+                EnsureTyped(keys="image"),
+            ]
+        )
 
-    def inferer(self, data=None) -> Callable:
+    def inferer(self, data: Optional[dict] = None) -> Callable:  # noqa: ARG002
         """
         Sliding window inferer for large volume inference
         """
@@ -90,39 +91,43 @@ class AortaSegmentation(InferTask):
             overlap=INFERENCE_CONFIG["overlap"],
         )
 
-    def inverse_transforms(self, data=None) -> Compose:
+    def inverse_transforms(self, data: Optional[dict] = None) -> Compose:  # noqa: ARG002
         """
         Inverse transforms to restore original spacing and orientation
         """
-        return Compose([
-            EnsureTyped(keys="pred", device="cpu", track_meta=False),
-            Activationsd(keys="pred", softmax=True),
-            AsDiscreted(keys="pred", argmax=True),
-        ])
+        return Compose(
+            [
+                EnsureTyped(keys="pred", device="cpu", track_meta=False),
+                Activationsd(keys="pred", softmax=True),
+                AsDiscreted(keys="pred", argmax=True),
+            ]
+        )
 
-    def post_transforms(self, data=None) -> Compose:
+    def post_transforms(self, data: Optional[dict] = None) -> Compose:  # noqa: ARG002
         """
         Post-processing transforms
         """
-        return Compose([
-            EnsureTyped(keys="pred", device="cpu", track_meta=False),
-        ])
+        return Compose(
+            [
+                EnsureTyped(keys="pred", device="cpu", track_meta=False),
+            ]
+        )
 
-    def __call__(self, request, datastore=None):
+    def __call__(self, request: dict, datastore: Optional[dict] = None) -> dict:
         """
         Execute inference on the input request
         """
-        logger.info(f"Starting aortic segmentation inference")
-        
+        logger.info("Starting aortic segmentation inference")
+
         if torch.cuda.is_available():
             logger.info(f"GPU Memory: {gpu_memory_map()}")
-        
+
         result = super().__call__(request, datastore)
-        
-        logger.info(f"Aortic segmentation inference completed")
+
+        logger.info("Aortic segmentation inference completed")
         return result
 
-    def get_path(self):
+    def get_path(self) -> str:
         """
         Get the model path
         """
@@ -137,7 +142,7 @@ class AortaSegmentation(InferTask):
             return False
         return True
 
-    def get_config(self):
+    def get_config(self) -> dict:
         """
         Get inference configuration
         """
